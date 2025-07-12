@@ -31,6 +31,21 @@ local Mouse = LocalPlayer:GetMouse()
 local realHitboxes = {"Head","Torso","HumanoidRootPart","Left Arm","Left Leg","Right Arm"}
 local adjusting = false
 
+local fovCircle = Drawing.new("Circle")
+fovCircle.Thickness = 1.5
+fovCircle.NumSides = 100
+fovCircle.Filled = false
+fovCircle.Transparency = 1
+fovCircle.Color = Color3.fromRGB(0, 170, 255)
+fovCircle.Radius = getgenv().fov
+fovCircle.Visible = getgenv().silentAim and getgenv().showFOV
+
+RunService.RenderStepped:Connect(function()
+    fovCircle.Position = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
+    fovCircle.Radius = getgenv().fov
+    fovCircle.Visible = getgenv().silentAim and getgenv().showFOV
+end)
+
 local function getTargetsInRadius()
     local targets = {}
     local origin = Camera.CFrame.Position
