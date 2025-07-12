@@ -3,11 +3,33 @@ getgenv().teamCheck = false
 getgenv().targetPartName = "Head"
 getgenv().radius = 100000
 getgenv().fireDelay = 0.1
+getgenv().bulletTracers = getgenv().bulletTracers or false
+getgenv().silentAim = getgenv().silentAim or false
+getgenv().showFOV = getgenv().showFOV or true
+getgenv().fov = getgenv().fov or 150
+getgenv().hitchance = getgenv().hitchance or 85
+getgenv().useRandomHitbox = getgenv().useRandomHitbox or false
+getgenv().selectedHitbox = getgenv().selectedHitbox or "Head"
+getgenv().enablePrediction = getgenv().enablePrediction or false
+getgenv().predictionAmount = getgenv().predictionAmount or 0.5
+getgenv().infDamage = getgenv().infDamage or false
+getgenv().hitboxChances = getgenv().hitboxChances or {
+    Head = 100,
+    Torso = 100,
+    HumanoidRootPart = 100,
+    ["Left Arm"] = 100,
+    ["Left Leg"] = 100,
+    ["Right Arm"] = 100
+}
+getgenv().BulletTracerColor = getgenv().BulletTracerColor or Color3.fromRGB(0, 170, 255)
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Camera = workspace.CurrentCamera
 local LocalPlayer = Players.LocalPlayer
+local Mouse = LocalPlayer:GetMouse()
+local realHitboxes = {"Head","Torso","HumanoidRootPart","Left Arm","Left Leg","Right Arm"}
+local adjusting = false
 
 local function getTargetsInRadius()
     local targets = {}
@@ -41,50 +63,6 @@ local function fireDamageSignal(part, pos)
     ReplicatedStorage:WaitForChild("Signals"):WaitForChild("damagesignal"):FireServer(unpack(args))
 end
 
-task.spawn(function()
-    while true do
-        if getgenv().killAll then
-            local targets = getTargetsInRadius()
-            for _, target in ipairs(targets) do
-                fireDamageSignal(target, target.Position)
-            end
-        end
-        task.wait(getgenv().fireDelay)
-    end
-end)
-
-getgenv().bulletTracers = getgenv().bulletTracers or false
-getgenv().silentAim = getgenv().silentAim or false
-getgenv().teamCheck = getgenv().teamCheck or false
-getgenv().showFOV = getgenv().showFOV or true
-getgenv().enablePrediction = getgenv().enablePrediction or false
-getgenv().fov = getgenv().fov or 150
-getgenv().hitchance = getgenv().hitchance or 85
-getgenv().useRandomHitbox = getgenv().useRandomHitbox or false
-getgenv().selectedHitbox = getgenv().selectedHitbox or "Head"
-getgenv().predictionAmount = getgenv().predictionAmount or 0.5
-getgenv().infDamage = getgenv().infDamage or false
-
-getgenv().hitboxChances = getgenv().hitboxChances or {
-    Head = 100,
-    Torso = 100,
-    HumanoidRootPart = 100,
-    ["Left Arm"] = 100,
-    ["Left Leg"] = 100,
-    ["Right Arm"] = 100
-}
-
-local realHitboxes = {
-    "Head",
-    "Torso",
-    "HumanoidRootPart",
-    "Left Arm",
-    "Left Leg",
-    "Right Arm"
-}
-
-local adjusting = false
-
 local function normalizeChances(excludeHitbox)
     if adjusting then return end
     adjusting = true
@@ -116,12 +94,6 @@ local function normalizeChances(excludeHitbox)
     adjusting = false
 end
 
-local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Camera = workspace.CurrentCamera
-local LocalPlayer = Players.LocalPlayer
-local Mouse = LocalPlayer:GetMouse()
-
 local function createBeam(fromPos, toPos)
     local attPart = Instance.new("Part")
     attPart.Size = Vector3.new(0.1, 0.1, 0.1)
@@ -137,7 +109,7 @@ local function createBeam(fromPos, toPos)
     local beam = Instance.new("Beam")
     beam.Attachment0 = a0
     beam.Attachment1 = a1
-    beam.Color = ColorSequence.new(Color3.fromRGB(0, 170, 255))
+    beam.Color = ColorSequence.new(getgenv().BulletTracerColor)
     beam.Width0 = 0.035
     beam.Width1 = 0.035
     beam.LightEmission = 1
@@ -150,22 +122,6 @@ local function createBeam(fromPos, toPos)
         end
     end)
 end
-
-local fovCircle = Drawing.new("Circle")
-fovCircle.Thickness = 1.5
-fovCircle.NumSides = 100
-fovCircle.Radius = getgenv().fov
-fovCircle.Color = Color3.fromRGB(0, 170, 255)
-fovCircle.Filled = false
-fovCircle.Visible = getgenv().showFOV and getgenv().silentAim
-
-game:GetService("RunService").RenderStepped:Connect(function()
-    local viewportSize = Camera.ViewportSize
-    local center = Vector2.new(viewportSize.X / 2, viewportSize.Y / 2)
-    fovCircle.Position = center
-    fovCircle.Radius = getgenv().fov
-    fovCircle.Visible = getgenv().silentAim and getgenv().showFOV
-end)
 
 local function isInFOV(pos)
     local screenPos, onScreen = Camera:WorldToViewportPoint(pos)
@@ -357,6 +313,18 @@ local function fireMagicBullet(targetPart)
     end
     ReplicatedStorage:WaitForChild("Signals"):WaitForChild("damagesignal"):FireServer(unpack(args))
 end
+
+task.spawn(function()
+    while true do
+        if getgenv().killAll then
+            local targets = getTargetsInRadius()
+            for _, target in ipairs(targets) do
+                fireDamageSignal(target, target.Position)
+            end
+        end
+        task.wait(getgenv().fireDelay)
+    end
+end)
 
 local oldNamecall
 oldNamecall = hookmetamethod(game, "__namecall", function(self, ...)
