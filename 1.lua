@@ -28,6 +28,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Camera = workspace.CurrentCamera
 local LocalPlayer = Players.LocalPlayer
 local Mouse = LocalPlayer:GetMouse()
+local RunService = game:GetService("RunService")
 local realHitboxes = {"Head","Torso","HumanoidRootPart","Left Arm","Left Leg","Right Arm"}
 local adjusting = false
 
@@ -36,13 +37,14 @@ fovCircle.Thickness = 1.5
 fovCircle.NumSides = 100
 fovCircle.Filled = false
 fovCircle.Transparency = 1
-fovCircle.Color = Color3.fromRGB(0, 170, 255)
+fovCircle.Color = getgenv().BulletTracerColor
 fovCircle.Radius = getgenv().fov
 fovCircle.Visible = getgenv().silentAim and getgenv().showFOV
 
 RunService.RenderStepped:Connect(function()
     fovCircle.Position = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
     fovCircle.Radius = getgenv().fov
+    fovCircle.Color = getgenv().BulletTracerColor
     fovCircle.Visible = getgenv().silentAim and getgenv().showFOV
 end)
 
@@ -132,9 +134,7 @@ local function createBeam(fromPos, toPos)
     beam.Transparency = NumberSequence.new(0.1)
     beam.Parent = attPart
     task.delay(2, function()
-        if attPart then
-            attPart:Destroy()
-        end
+        if attPart then attPart:Destroy() end
     end)
 end
 
@@ -178,9 +178,7 @@ local function getWeightedRandomHitbox(chances)
     local cumulative = 0
     for _, hitbox in ipairs(realHitboxes) do
         cumulative = cumulative + (chances[hitbox] or 0)
-        if roll <= cumulative then
-            return hitbox
-        end
+        if roll <= cumulative then return hitbox end
     end
 end
 
@@ -245,10 +243,10 @@ local function processQueue()
     if activeNotifications >= maxActiveNotifications then return end
     local nextMsg = table.remove(notificationQueue, 1)
     if nextMsg then
-        activeNotifications = activeNotifications + 1
+        activeNotifications += 1
         library:SendNotification(nextMsg)
         task.delay(3, function()
-            activeNotifications = activeNotifications - 1
+            activeNotifications -= 1
             processQueue()
         end)
     end
@@ -304,12 +302,7 @@ local function fireMagicBullet(targetPart)
     local weapon = getCurrentWeapon()
     local predictedPos = getPredictedPosition(targetPart)
     local direction = (predictedPos - Camera.CFrame.Position).Unit
-    local damage = 7
-    if getgenv().infDamage then
-        damage = 9e9
-    elseif weaponDamageMap[weapon] then
-        damage = weaponDamageMap[weapon]
-    end
+    local damage = getgenv().infDamage and 9e9 or (weaponDamageMap[weapon] or 7)
     local args = {
         targetPart,
         damage,
@@ -320,11 +313,11 @@ local function fireMagicBullet(targetPart)
         [8] = predictedPos,
         [9] = 93.03475952148438
     }
-    local displayDamage = getgenv().infDamage and "inf" or tostring(damage)
     local char = targetPart:FindFirstAncestorOfClass("Model")
     local player = Players:GetPlayerFromCharacter(char)
     if player then
-        queueNotification("Hit " .. player.Name .. " in the " .. targetPart.Name .. " for " .. displayDamage, 1)
+        local displayDamage = getgenv().infDamage and "inf" or tostring(damage)
+        queueNotification("Hit " .. player.Name .. " in the " .. targetPart.Name .. " for " .. displayDamage)
     end
     ReplicatedStorage:WaitForChild("Signals"):WaitForChild("damagesignal"):FireServer(unpack(args))
 end
@@ -332,8 +325,7 @@ end
 task.spawn(function()
     while true do
         if getgenv().killAll then
-            local targets = getTargetsInRadius()
-            for _, target in ipairs(targets) do
+            for _, target in ipairs(getTargetsInRadius()) do
                 fireDamageSignal(target, target.Position)
             end
         end
@@ -344,7 +336,7 @@ end)
 local oldNamecall
 oldNamecall = hookmetamethod(game, "__namecall", function(self, ...)
     local method = getnamecallmethod()
-    local args = {...}
+    local args = { ... }
     if not checkcaller() and method == "FireServer" and tostring(self) == "u_replicateBulletTracer" then
         if typeof(args[1]) == "Vector3" and typeof(args[2]) == "Vector3" then
             local fromPos = args[1]
