@@ -66,12 +66,12 @@ getgenv().predictionAmount = getgenv().predictionAmount or 0.5
 getgenv().infDamage = getgenv().infDamage or false
 
 getgenv().hitboxChances = getgenv().hitboxChances or {
-    Head = 20,
-    Torso = 50,
-    HumanoidRootPart = 15,
-    ["Left Arm"] = 5,
-    ["Left Leg"] = 5,
-    ["Right Arm"] = 5
+    Head = 100,
+    Torso = 100,
+    HumanoidRootPart = 100,
+    ["Left Arm"] = 100,
+    ["Left Leg"] = 100,
+    ["Right Arm"] = 100
 }
 
 Saim:AddSeparator({
