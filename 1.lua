@@ -303,8 +303,6 @@ local weaponDamageMap = {
     ["VM_CrystalLaserCannon_UP2"] = 7,
     ["VM_DesertFighter"] = 18,
     ["VM_XmasDestroyer_UP1"] = 5,
-    ["GoldenFriend"] = 7,
-    ["Ultimatum"] = 9e9,
     ["VM_PixelGun"] = 14,
     ["VM_FastDeath_UP2"] = 8,
     ["VM_PlasmaPistol_UP2"] = 8,
@@ -335,7 +333,7 @@ local function fireMagicBullet(targetPart)
     local weapon = getCurrentWeapon()
     local predictedPos = getPredictedPosition(targetPart)
     local direction = (predictedPos - Camera.CFrame.Position).Unit
-    local damage = 20
+    local damage = 7
     if getgenv().infDamage then
         damage = 9e9
     elseif weaponDamageMap[weapon] then
