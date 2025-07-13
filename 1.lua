@@ -24,7 +24,7 @@ getgenv().hitboxChances = getgenv().hitboxChances or {
 getgenv().BulletTracerColor = getgenv().BulletTracerColor or Color3.fromRGB(0, 170, 255)
 getgenv().autoShoot = getgenv().autoShoot or false
 getgenv().autoShootDelay = getgenv().autoShootDelay or 1
-getgenv().doubleTap = getgenv().doubleTap or true
+getgenv().doubleTap = getgenv().doubleTap or false
 getgenv().doubleTapHitchance = getgenv().doubleTapHitchance or 85 -- Added default for doubleTapHitchance
 getgenv().DoubleTapTracerColor = Color3.fromRGB(140, 140, 140)
 
