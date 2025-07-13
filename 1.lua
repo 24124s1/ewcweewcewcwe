@@ -294,7 +294,9 @@ local weaponDamageMap = {
     ["VM_ElephantHunter_UP2"] = 84,
     ["VM_Prototype_UP2"] = 41,
     ["VM_SolarRayRifle_UP2"] = 10,
-    ["VM_AntiHero"] = 167
+    ["VM_AntiHero"] = 167,
+    ["VM_AntiHero_UP1"] = 167,
+    ["VM_AntiHero_UP2"] = 167
 }
 
 local function fireMagicBullet(targetPart)
