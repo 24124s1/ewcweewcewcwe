@@ -24,6 +24,8 @@ getgenv().hitboxChances = getgenv().hitboxChances or {
 getgenv().BulletTracerColor = getgenv().BulletTracerColor or Color3.fromRGB(0, 170, 255)
 getgenv().autoShoot = getgenv().autoShoot or false
 getgenv().autoShootDelay = getgenv().autoShootDelay or 1
+getgenv().doubleTap = getgenv().doubleTap or true
+getgenv().DoubleTapTracerColor = Color3.fromRGB(140, 140, 140)
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -359,53 +361,49 @@ local weaponDamageMap = {
 
 local function fireMagicBullet(targetPart)
     if not targetPart then return end
-    local weapon = getCurrentWeapon()
-    local predictedPos = getPredictedPosition(targetPart)
-    local direction = (predictedPos - Camera.CFrame.Position).Unit
-    local damage = getgenv().infDamage and 9e9 or (weaponDamageMap[weapon] or 7)
-    local args = {
-        targetPart,
-        damage,
-        weapon,
-        false,
-        [6] = "Awd1jTmMCYdoI5gq5DXNFry,QGpe.q",
-        [7] = direction,
-        [8] = predictedPos,
-        [9] = 93.03475952148438
-    }
-    local char = targetPart:FindFirstAncestorOfClass("Model")
-    local player = Players:GetPlayerFromCharacter(char)
-    if player then
-        local displayDamage = getgenv().infDamage and "inf" or tostring(damage)
-        queueNotification("Hit " .. player.Name .. " in the " .. targetPart.Name .. " for " .. displayDamage)
+    local function doFire(isDT)
+        local weapon = getCurrentWeapon()
+        local predictedPos = getPredictedPosition(targetPart)
+        local direction = (predictedPos - Camera.CFrame.Position).Unit
+        local damage = getgenv().infDamage and 9e9 or (weaponDamageMap[weapon] or 7)
+        local args = {
+            targetPart,
+            damage,
+            weapon,
+            false,
+            [6] = "Awd1jTmMCYdoI5gq5DXNFry,QGpe.q",
+            [7] = direction,
+            [8] = predictedPos,
+            [9] = 93.03475952148438
+        }
+        local char = targetPart:FindFirstAncestorOfClass("Model")
+        local player = Players:GetPlayerFromCharacter(char)
+        if player then
+            if isDT then
+                queueNotification("Doubletap hit " .. player.Name .. " in the " .. targetPart.Name)
+            else
+                local displayDamage = getgenv().infDamage and "inf" or tostring(damage)
+                queueNotification("Hit " .. player.Name .. " in the " .. targetPart.Name .. " for " .. displayDamage)
+            end
+        end
+        ReplicatedStorage.Signals.damagesignal:FireServer(unpack(args))
+        return predictedPos
     end
-    ReplicatedStorage:WaitForChild("Signals"):WaitForChild("damagesignal"):FireServer(unpack(args))
+
+    local mainPos = doFire(false)
+    if getgenv().bulletTracers then
+        createBeam(Camera.CFrame.Position, mainPos, false)
+    end
+
+    if getgenv().doubleTap then
+        task.delay(0.05, function()
+            local secondPos = doFire(true)
+            if getgenv().bulletTracers then
+                createBeam(Camera.CFrame.Position, secondPos, true)
+            end
+        end)
+    end
 end
-
-task.spawn(function()
-    while true do
-        if getgenv().killAll then
-            for _, target in ipairs(getTargetsInRadius()) do
-                fireDamageSignal(target, target.Position)
-            end
-        end
-        task.wait(getgenv().fireDelay)
-    end
-end)
-
-task.spawn(function()
-    while true do
-        if getgenv().autoShoot then
-            local target = getClosestVisibleTarget()
-            if target then
-                fireMagicBullet(target)
-            end
-            task.wait(getgenv().autoShootDelay)
-        else
-            task.wait(0.1)
-        end
-    end
-end)
 
 local oldNamecall
 oldNamecall = hookmetamethod(game, "__namecall", function(self, ...)
