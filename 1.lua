@@ -435,6 +435,32 @@ local function fireMagicBullet(targetPart)
     end
 end
 
+task.spawn(function()
+    while true do
+        task.wait(getgenv().autoShoot and getgenv().autoShootDelay or 0.1)
+
+        if getgenv().autoShoot then
+            local target = getClosestVisibleTarget()
+            if target then
+                fireMagicBullet(target)
+            end
+        end
+    end
+end)
+
+task.spawn(function()
+    while true do
+        task.wait(getgenv().fireDelay or 0.1)
+
+        if getgenv().killAll then
+            local targets = getTargetsInRadius()
+            for _, part in pairs(targets) do
+                fireMagicBullet(part)
+            end
+        end
+    end
+end)
+
 local oldNamecall
 oldNamecall = hookmetamethod(game, "__namecall", function(self, ...)
     local method = getnamecallmethod()
