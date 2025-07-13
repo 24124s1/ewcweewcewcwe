@@ -134,6 +134,10 @@ local function isInFOV(pos)
     return dist <= getgenv().fov
 end
 
+local function passesHitchanceValue(value)
+    return math.random(1, 100) <= value
+end
+
 local function passesHitchance()
     return math.random(1, 100) <= getgenv().hitchance
 end
