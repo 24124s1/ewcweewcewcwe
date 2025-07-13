@@ -210,16 +210,25 @@ local function getValidPart(character)
     return nil
 end
 
+local function isInFOV(pos)
+    local screenPos, onScreen = Camera:WorldToViewportPoint(pos)
+    if not onScreen then return false end
+    local screenCenter = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
+    local dist = (Vector2.new(screenPos.X, screenPos.Y) - screenCenter).Magnitude
+    return dist <= getgenv().fov
+end
+
 local function getClosestVisibleTarget()
     local closest = nil
     local shortestDistance = math.huge
+    local screenCenter = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
     for _, plr in ipairs(Players:GetPlayers()) do
         if plr ~= LocalPlayer and plr.Character then
             if not getgenv().teamCheck or plr.Team ~= LocalPlayer.Team then
                 local part = getValidPart(plr.Character)
                 if part then
                     local screenPos = Camera:WorldToViewportPoint(part.Position)
-                    local mouseDist = (Vector2.new(screenPos.X, screenPos.Y) - Vector2.new(Mouse.X, Mouse.Y)).Magnitude
+                    local mouseDist = (Vector2.new(screenPos.X, screenPos.Y) - screenCenter).Magnitude
                     if mouseDist < shortestDistance then
                         shortestDistance = mouseDist
                         closest = part
