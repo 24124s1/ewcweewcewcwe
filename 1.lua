@@ -36,6 +36,20 @@ local RunService = game:GetService("RunService")
 local realHitboxes = {"Head","Torso","HumanoidRootPart","Left Arm","Left Leg","Right Arm"}
 local adjusting = false
 
+local fovCircle = Drawing.new("Circle")
+fovCircle.Color = Color3.fromRGB(0, 170, 255)
+fovCircle.Thickness = 1
+fovCircle.Filled = false
+fovCircle.Radius = getgenv().fov
+fovCircle.Visible = getgenv().showFOV
+fovCircle.Transparency = 1
+
+RunService.RenderStepped:Connect(function()
+    fovCircle.Position = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
+    fovCircle.Radius = getgenv().fov
+    fovCircle.Visible = getgenv().showFOV
+end)
+
 local function getTargetsInRadius()
     local targets = {}
     local origin = Camera.CFrame.Position
@@ -400,13 +414,14 @@ local function fireMagicBullet(targetPart)
     end
 
     if getgenv().doubleTap then
-        task.delay(0.05, function()
+    task.delay(0.05, function()
+        if passesHitchanceValue(getgenv().doubleTapHitchance) then
             local secondPos = doFire(true)
             if getgenv().bulletTracers then
                 createBeam(Camera.CFrame.Position, secondPos, true)
             end
-        end)
-    end
+        end
+    end)
 end
 
 local oldNamecall
