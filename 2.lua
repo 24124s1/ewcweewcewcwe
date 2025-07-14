@@ -4849,7 +4849,7 @@ themeSection:AddList({text = 'Presets', flag = 'preset_theme', values = themeStr
             end
         end
         setByPreset = false
-    end}):Select('Default');
+    end}):Select('Iridescent');
 
     for i, v in pairs(library.theme) do
         themeSection:AddColor({text = i, flag = i, color = library.theme[i], callback = function(c3)
