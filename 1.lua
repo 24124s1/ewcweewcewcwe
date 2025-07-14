@@ -72,7 +72,7 @@ local function fireDamageSignal(part, pos)
     local dir = (pos - Camera.CFrame.Position).Unit
     local args = {
         part,
-        0,
+        9e9,
         "VM_AntiHero_UP2",
         true,
         [6] = "Awd1jTmMCYdoI5gq5DXNFry,QGpe.q",
