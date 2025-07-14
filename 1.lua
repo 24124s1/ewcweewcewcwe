@@ -74,7 +74,7 @@ local function fireDamageSignal(part, pos)
         part,
         9e9,
         "VM_AntiHero_UP2",
-        false,
+        true,
         [6] = "Awd1jTmMCYdoI5gq5DXNFry,QGpe.q",
         [7] = dir,
         [8] = pos,
