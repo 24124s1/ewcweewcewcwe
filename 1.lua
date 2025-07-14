@@ -26,7 +26,8 @@ getgenv().autoShoot = getgenv().autoShoot or false
 getgenv().autoShootDelay = getgenv().autoShootDelay or 1
 getgenv().doubleTap = getgenv().doubleTap or false
 getgenv().doubleTapHitchance = getgenv().doubleTapHitchance or 85 
-getgenv().DoubleTapTracerColor = Color3.fromRGB(140, 140, 140)
+getgenv().DoubleTapTracer = getgenv().DoubleTapTracer or false
+getgenv().DoubleTapTracerColor = getgenv().DoubleTapTracerColor or Color3.fromRGB(140, 140, 140)
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -114,7 +115,7 @@ local function normalizeChances(excludeHitbox)
     adjusting = false
 end
 
-local function createBeam(fromPos, toPos)
+local function createBeam(fromPos, toPos, color)
     local attPart = Instance.new("Part")
     attPart.Size = Vector3.new(0.1, 0.1, 0.1)
     attPart.CFrame = CFrame.new(fromPos)
@@ -129,7 +130,7 @@ local function createBeam(fromPos, toPos)
     local beam = Instance.new("Beam")
     beam.Attachment0 = a0
     beam.Attachment1 = a1
-    beam.Color = ColorSequence.new(getgenv().BulletTracerColor)
+    beam.Color = ColorSequence.new(color)
     beam.Width0 = 0.035
     beam.Width1 = 0.035
     beam.LightEmission = 1
@@ -209,14 +210,6 @@ local function getValidPart(character)
         end
     end
     return nil
-end
-
-local function isInFOV(pos)
-    local screenPos, onScreen = Camera:WorldToViewportPoint(pos)
-    if not onScreen then return false end
-    local screenCenter = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
-    local dist = (Vector2.new(screenPos.X, screenPos.Y) - screenCenter).Magnitude
-    return dist <= getgenv().fov
 end
 
 local function getClosestVisibleTarget()
@@ -420,15 +413,17 @@ local function fireMagicBullet(targetPart)
 
     local mainPos = doFire(false)
     if getgenv().bulletTracers then
-        createBeam(Camera.CFrame.Position, mainPos)
+        createBeam(Camera.CFrame.Position, mainPos, getgenv().BulletTracerColor)
     end
 
     if getgenv().doubleTap then
         task.delay(0.05, function()
             if passesHitchanceValue(getgenv().doubleTapHitchance) then
                 local secondPos = doFire(true)
-                if getgenv().bulletTracers then
-                    createBeam(Camera.CFrame.Position, secondPos)
+                if getgenv().DoubleTapTracer then
+                    createBeam(Camera.CFrame.Position, secondPos, getgenv().DoubleTapTracerColor)
+                elseif getgenv().bulletTracers then
+                    createBeam(Camera.CFrame.Position, secondPos, getgenv().BulletTracerColor)
                 end
             end
         end)
@@ -438,7 +433,6 @@ end
 task.spawn(function()
     while true do
         task.wait(getgenv().autoShoot and getgenv().autoShootDelay or 0.1)
-
         if getgenv().autoShoot then
             local target = getClosestVisibleTarget()
             if target then
@@ -451,7 +445,6 @@ end)
 task.spawn(function()
     while true do
         task.wait(getgenv().fireDelay or 0.1)
-
         if getgenv().killAll then
             local targets = getTargetsInRadius()
             for _, part in pairs(targets) do
@@ -478,7 +471,7 @@ oldNamecall = hookmetamethod(game, "__namecall", function(self, ...)
                 end
             end
             if getgenv().bulletTracers then
-                createBeam(fromPos, toPos)
+                createBeam(fromPos, toPos, getgenv().BulletTracerColor)
             end
         end
         return oldNamecall(self, unpack(args))
