@@ -250,7 +250,6 @@ local function fireMagicBullet(targetPart)
             end
         end)
     end
-end
 
 task.spawn(function()
     while true do
