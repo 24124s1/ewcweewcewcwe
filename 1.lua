@@ -228,10 +228,12 @@ local function fireMagicBulletWithWeapon(targetPart, weaponName, isDT, isKillAll
         local player = Players:GetPlayerFromCharacter(char)
         if player then
             if isDT then
-                queueNotification("Doubletap hit " .. player.Name .. " in the " .. targetPart.Name .. " with " .. weaponName)
+                local cleanedWeaponName = weaponName:gsub("^VM_", ""):gsub("_", " ")
+                queueNotification("Doubletap hit " .. player.Name .. " in the " .. targetPart.Name .. " with " .. cleanedWeaponName)
             else
                 local displayDamage = getgenv().infDamage and "inf" or tostring(damage)
-                queueNotification("Hit " .. player.Name .. " in the " .. targetPart.Name .. " for " .. displayDamage .. " with " .. weaponName)
+                local cleanedWeaponName = weaponName:gsub("^VM_", ""):gsub("_", " ")
+                queueNotification("Hit " .. player.Name .. " in the " .. targetPart.Name .. " for " .. displayDamage .. " with " .. cleanedWeaponName)
             end
         end
 
@@ -289,25 +291,31 @@ local old
 old = hookmetamethod(game, "__namecall", function(self, ...)
     local m = getnamecallmethod()
     local a = { ... }
+
     if not checkcaller() and m == "FireServer" and tostring(self) == "u_replicateBulletTracer" then
         if typeof(a[1]) == "Vector3" and typeof(a[2]) == "Vector3" then
-            local f, tpos = a[1], a[2]
+            local from, to = a[1], a[2]
+
             if getgenv().silentAim then
                 local tgt = getClosestVisibleTarget()
                 if tgt then
-                    local pred = getPredictedPosition(tgt)
-                    tpos = pred
+                    to = getPredictedPosition(tgt)
                     fireMagicBulletWithWeapon(tgt, getCurrentWeapon(), false, false)
                 end
             end
-            if getgenv().killAll then
-                return nil 
-            elseif getgenv().doubleTap and not getgenv().DoubleTapTracer then
-                return nil 
-            else
-                return old(self, f, tpos, unpack(a, 3))
+
+            if getgenv().bulletTracers then
+                createBeam(from, to, getgenv().BulletTracerColor)
             end
+            if getgenv().killAll then
+                return nil
+            elseif getgenv().doubleTap and not getgenv().DoubleTapTracer then
+                return nil
+            end
+
+            return old(self, from, to, unpack(a, 3))
         end
     end
+
     return old(self, ...)
 end)
