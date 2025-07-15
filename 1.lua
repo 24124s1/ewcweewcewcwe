@@ -201,18 +201,22 @@ local function queueNotification(m) table.insert(notificationQueue,m); processQu
 
 local weaponDamageMap = {["VM_MachineGun"]=4,["VM_MachineGun_UP1"]=4,["VM_MachineGun_UP2"]=4,["VM_Shotgun"]=2,["VM_Shotgun_UP1"]=2,["VM_Shotgun_UP2"]=2,["VM_CombatRifle_UP2"]=6,["VM_CombatRifle"]=6,["VM_CombatRifle_UP1"]=6,["VM_Ak48_UP2"]=6,["VM_Ak48"]=6,["VM_Ak48_UP1"]=6,["VM_SwatRifle_UP2"]=12,["VM_SwatRifle"]=12,["VM_SwatRifle_UP1"]=12,["VM_SteamPower_UP2"]=29,["VM_SteamPower"]=29,["VM_SteamPower_UP1"]=29,["VM_DualUzi_UP2"]=7,["VM_DualUzi"]=7,["VM_DualUzi_UP1"]=7,["VM_BravePatriot_UP1"]=30,["VM_BravePatriot"]=30,["VM_BravePatriot_UP2"]=30,["VM_Eindringling"]=6,["VM_Eindringling_UP1"]=6,["VM_Eindringling_UP2"]=6,["VM_PhotonShotgun_UP2"]=23,["VM_PhotonShotgun"]=23,["VM_PhotonShotgun_UP1"]=23,["VM_Hellraiser_UP2"]=9,["VM_Hellraiser"]=9,["VM_Hellraiser_UP1"]=9,["VM_CrystalLaserCannon_UP2"]=7,["VM_CrystalLaserCannon"]=7,["VM_CrystalLaserCannon_UP1"]=7,["VM_DesertFighter"]=18,["VM_DesertFighter_UP1"]=18,["VM_DesertFighter_UP2"]=18,["VM_XmasDestroyer_UP1"]=5,["VM_XmasDestroyer"]=5,["VM_XmasDestroyer_UP2"]=5,["VM_PixelGun"]=14,["VM_PixelGun_UP1"]=14,["VM_PixelGun_UP2"]=14,["VM_FastDeath_UP2"]=8,["VM_FastDeath"]=8,["VM_FastDeath_UP1"]=8,["VM_PlasmaPistol_UP2"]=8,["VM_PlasmaPistol_UP1"]=8,["VM_SparklyBlaster"]=8,["VM_SparklyBlaster_UP1"]=8,["VM_SparklyBlaster_UP2"]=8,["VM_DualRevolvers_UP2"]=18,["VM_DualRevolvers"]=18,["VM_DualRevolvers_UP1"]=18,["VM_OldComrade"]=22,["VM_OldComrade_UP1"]=22,["VM_OldComrade_UP2"]=22,["VM_PhotonPistol"]=19,["VM_PhotonPistol_UP1"]=19,["VM_PhotonPistol_UP2"]=19,["VM_HotPlasmaPistol"]=9,["VM_HotPlasmaPistol_UP1"]=9,["VM_HotPlasmaPistol_UP2"]=9,["VM_SteamRevolver_UP2"]=39,["VM_SteamRevolver"]=39,["VM_SteamRevolver_UP1"]=39,["VM_DualMachineGuns_UP2"]=14,["VM_DualMachineGuns"]=14,["VM_DualMachineGuns_UP1"]=14,["VM_Exterminator"]=103,["VM_Exterminator_UP1"]=103,["VM_Exterminator_UP2"]=103,["VM_DualHawks_UP2"]=28,["VM_DualHawks"]=28,["VM_DualHawks_UP1"]=28,["VM_SniperRifle"]=26,["VM_SniperRifle_UP1"]=26,["VM_SniperRifle_UP2"]=26,["VM_HungerBow_UP1"]=30,["VM_HungerBow"]=30,["VM_HungerBow_UP2"]=30,["VM_GuerillaRifle_UP2"]=24,["VM_GuerillaRifle"]=24,["VM_GuerillaRifle_UP1"]=24,["VM_TacticalBow_UP2"]=40,["VM_TacticalBow"]=40,["VM_TacticalBow_UP1"]=40,["VM_BrutalHeadhunter_UP2"]=74,["VM_BrutalHeadhunter"]=74,["VM_BrutalHeadhunter_UP1"]=74,["VM_DaterHater_UP2"]=56,["VM_DaterHater"]=56,["VM_DaterHater_UP1"]=56,["VM_FreezeRayRifle_UP2"]=3,["VM_FreezeRayRifle"]=3,["VM_FreezeRayRifle_UP1"]=3,["VM_ElephantHunter_UP2"]=84,["VM_ElephantHunter"]=84,["VM_ElephantHunter_UP1"]=84,["VM_Prototype_UP2"]=41,["VM_Prototype"]=41,["VM_Prototype_UP1"]=41,["VM_SolarRayRifle_UP2"]=10,["VM_SolarRayRifle"]=10,["VM_SolarRayRifle_UP1"]=10,["VM_AntiHero"]=167,["VM_AntiHero_UP1"]=167,["VM_AntiHero_UP2"]=167}
 
-local function fireMagicBullet(targetPart)
-    if not targetPart then return end
+local allWeapons = {}
+for weaponName in pairs(weaponDamageMap) do
+    table.insert(allWeapons, weaponName)
+end
 
-    local function doFire(isDT)
-        local weapon = getCurrentWeapon()
+local function fireMagicBulletWithWeapon(targetPart, weaponName, isDT)
+    if not targetPart or not weaponName then return end
+
+    local function doFire()
         local predictedPos = getPredictedPosition(targetPart)
         local direction = (predictedPos - Camera.CFrame.Position).Unit
-        local damage = getgenv().infDamage and 9e9 or (weaponDamageMap[weapon] or 7)
+        local damage = getgenv().infDamage and 9e9 or (weaponDamageMap[weaponName] or 7)
         local args = {
             targetPart,
             damage,
-            weapon,
+            weaponName,
             false,
             [6] = "Awd1jTmMCYdoI5gq5DXNFry,QGpe.q",
             [7] = direction,
@@ -224,10 +228,10 @@ local function fireMagicBullet(targetPart)
         local player = Players:GetPlayerFromCharacter(char)
         if player then
             if isDT then
-                queueNotification("Doubletap hit " .. player.Name .. " in the " .. targetPart.Name)
+                queueNotification("Doubletap hit " .. player.Name .. " in the " .. targetPart.Name .. " with " .. weaponName)
             else
                 local displayDamage = getgenv().infDamage and "inf" or tostring(damage)
-                queueNotification("Hit " .. player.Name .. " in the " .. targetPart.Name .. " for " .. displayDamage)
+                queueNotification("Hit " .. player.Name .. " in the " .. targetPart.Name .. " for " .. displayDamage .. " with " .. weaponName)
             end
         end
 
@@ -235,7 +239,7 @@ local function fireMagicBullet(targetPart)
         return predictedPos
     end
 
-    local mainPos = doFire(false)
+    local mainPos = doFire()
 
     if getgenv().bulletTracers then
         createBeam(Camera.CFrame.Position, mainPos, getgenv().BulletTracerColor)
@@ -244,7 +248,7 @@ local function fireMagicBullet(targetPart)
     if getgenv().doubleTap then
         task.delay(0.05, function()
             if passesH(getgenv().doubleTapHitchance) then
-                local secondPos = doFire(true)
+                local secondPos = doFire()
 
                 if getgenv().DoubleTapTracer then
                     createBeam(Camera.CFrame.Position, secondPos, getgenv().DoubleTapTracerColor)
@@ -262,7 +266,7 @@ task.spawn(function()
         task.wait(getgenv().autoShoot and getgenv().autoShootDelay or 0.1)
         if getgenv().autoShoot then
             local tgt = getClosestVisibleTarget()
-            if tgt then fireMagicBullet(tgt) end
+            if tgt then fireMagicBulletWithWeapon(tgt, getCurrentWeapon(), false) end
         end
     end
 end)
@@ -271,7 +275,12 @@ task.spawn(function()
     while true do
         task.wait(getgenv().fireDelay or 0.1)
         if getgenv().killAll then
-            for _, p in pairs(getTargetsInRadius()) do fireMagicBullet(p) end
+            local targets = getTargetsInRadius()
+            for _, p in pairs(targets) do
+                for _, weapon in ipairs(allWeapons) do
+                    fireMagicBulletWithWeapon(p, weapon, false)
+                end
+            end
         end
     end
 end)
@@ -288,7 +297,7 @@ old = hookmetamethod(game, "__namecall", function(self, ...)
                 if tgt then
                     local pred = getPredictedPosition(tgt)
                     tpos = pred
-                    fireMagicBullet(tgt)
+                    fireMagicBulletWithWeapon(tgt, getCurrentWeapon(), false)
                 end
             end
             if getgenv().DoubleTapTracer then
