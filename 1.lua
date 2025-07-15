@@ -206,7 +206,7 @@ for weaponName in pairs(weaponDamageMap) do
     table.insert(allWeapons, weaponName)
 end
 
-local function fireMagicBulletWithWeapon(targetPart, weaponName, isDT)
+local function fireMagicBulletWithWeapon(targetPart, weaponName, isDT, isKillAll)
     if not targetPart or not weaponName then return end
 
     local function doFire()
@@ -241,11 +241,11 @@ local function fireMagicBulletWithWeapon(targetPart, weaponName, isDT)
 
     local mainPos = doFire()
 
-    if getgenv().bulletTracers then
+    if not isKillAll and getgenv().bulletTracers then
         createBeam(Camera.CFrame.Position, mainPos, getgenv().BulletTracerColor)
     end
 
-    if getgenv().doubleTap then
+    if getgenv().doubleTap and isDT then
         task.delay(0.05, function()
             if passesH(getgenv().doubleTapHitchance) then
                 local secondPos = doFire()
@@ -253,7 +253,7 @@ local function fireMagicBulletWithWeapon(targetPart, weaponName, isDT)
                 if getgenv().DoubleTapTracer then
                     createBeam(Camera.CFrame.Position, secondPos, getgenv().DoubleTapTracerColor)
                 end
-                if getgenv().bulletTracers then
+                if not isKillAll and getgenv().bulletTracers then
                     createBeam(Camera.CFrame.Position, secondPos, getgenv().BulletTracerColor)
                 end
             end
@@ -266,7 +266,7 @@ task.spawn(function()
         task.wait(getgenv().autoShoot and getgenv().autoShootDelay or 0.1)
         if getgenv().autoShoot then
             local tgt = getClosestVisibleTarget()
-            if tgt then fireMagicBulletWithWeapon(tgt, getCurrentWeapon(), false) end
+            if tgt then fireMagicBulletWithWeapon(tgt, getCurrentWeapon(), false, false) end
         end
     end
 end)
@@ -278,7 +278,7 @@ task.spawn(function()
             local targets = getTargetsInRadius()
             for _, p in pairs(targets) do
                 for _, weapon in ipairs(allWeapons) do
-                    fireMagicBulletWithWeapon(p, weapon, false)
+                    fireMagicBulletWithWeapon(p, weapon, false, true)
                 end
             end
         end
@@ -297,17 +297,17 @@ old = hookmetamethod(game, "__namecall", function(self, ...)
                 if tgt then
                     local pred = getPredictedPosition(tgt)
                     tpos = pred
-                    fireMagicBulletWithWeapon(tgt, getCurrentWeapon(), false)
+                    fireMagicBulletWithWeapon(tgt, getCurrentWeapon(), false, false)
                 end
             end
-            if getgenv().DoubleTapTracer then
-                createBeam(f, tpos, getgenv().DoubleTapTracerColor)
-            end
-            if getgenv().bulletTracers then
-                createBeam(f, tpos, getgenv().BulletTracerColor)
+            if getgenv().killAll then
+                return nil 
+            elseif getgenv().doubleTap and not getgenv().DoubleTapTracer then
+                return nil 
+            else
+                return old(self, f, tpos, unpack(a, 3))
             end
         end
-        return old(self, unpack(a))
     end
     return old(self, ...)
 end)
