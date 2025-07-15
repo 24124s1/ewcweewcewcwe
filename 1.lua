@@ -203,6 +203,7 @@ local weaponDamageMap = {["VM_MachineGun"]=4,["VM_MachineGun_UP1"]=4,["VM_Machin
 
 local function fireMagicBullet(targetPart)
     if not targetPart then return end
+
     local function doFire(isDT)
         local weapon = getCurrentWeapon()
         local predictedPos = getPredictedPosition(targetPart)
@@ -218,6 +219,7 @@ local function fireMagicBullet(targetPart)
             [8] = predictedPos,
             [9] = 93.03475952148438
         }
+
         local char = targetPart:FindFirstAncestorOfClass("Model")
         local player = Players:GetPlayerFromCharacter(char)
         if player then
@@ -228,19 +230,22 @@ local function fireMagicBullet(targetPart)
                 queueNotification("Hit " .. player.Name .. " in the " .. targetPart.Name .. " for " .. displayDamage)
             end
         end
+
         ReplicatedStorage.Signals.damagesignal:FireServer(unpack(args))
         return predictedPos
     end
 
     local mainPos = doFire(false)
+
     if getgenv().bulletTracers then
         createBeam(Camera.CFrame.Position, mainPos, getgenv().BulletTracerColor)
     end
 
     if getgenv().doubleTap then
         task.delay(0.05, function()
-            if passesHitchanceValue(getgenv().doubleTapHitchance) then
+            if passesH(getgenv().doubleTapHitchance) then
                 local secondPos = doFire(true)
+
                 if getgenv().DoubleTapTracer then
                     createBeam(Camera.CFrame.Position, secondPos, getgenv().DoubleTapTracerColor)
                 end
@@ -250,12 +255,13 @@ local function fireMagicBullet(targetPart)
             end
         end)
     end
+end
 
 task.spawn(function()
     while true do
         task.wait(getgenv().autoShoot and getgenv().autoShootDelay or 0.1)
         if getgenv().autoShoot then
-            local tgt=getClosestVisibleTarget()
+            local tgt = getClosestVisibleTarget()
             if tgt then fireMagicBullet(tgt) end
         end
     end
@@ -265,30 +271,34 @@ task.spawn(function()
     while true do
         task.wait(getgenv().fireDelay or 0.1)
         if getgenv().killAll then
-            for _,p in pairs(getTargetsInRadius()) do fireMagicBullet(p) end
+            for _, p in pairs(getTargetsInRadius()) do fireMagicBullet(p) end
         end
     end
 end)
 
 local old
-old=hookmetamethod(game,"__namecall",function(self,...)
-    local m=getnamecallmethod()
-    local a={...}
-    if not checkcaller() and m=="FireServer" and tostring(self)=="u_replicateBulletTracer" then
-        if typeof(a[1])=="Vector3" and typeof(a[2])=="Vector3" then
-            local f=a[1] local tpos=a[2]
+old = hookmetamethod(game, "__namecall", function(self, ...)
+    local m = getnamecallmethod()
+    local a = { ... }
+    if not checkcaller() and m == "FireServer" and tostring(self) == "u_replicateBulletTracer" then
+        if typeof(a[1]) == "Vector3" and typeof(a[2]) == "Vector3" then
+            local f, tpos = a[1], a[2]
             if getgenv().silentAim then
-                local tgt=getClosestVisibleTarget()
+                local tgt = getClosestVisibleTarget()
                 if tgt then
-                    local pred=getPredictedPosition(tgt)
-                    tpos=pred
+                    local pred = getPredictedPosition(tgt)
+                    tpos = pred
                     fireMagicBullet(tgt)
                 end
             end
-            if getgenv().DoubleTapTracer then createBeam(f,tpos,getgenv().DoubleTapTracerColor)
-            if getgenv().bulletTracers then createBeam(Camera.CFrame.Position, mainPos, getgenv().BulletTracerColor) end
+            if getgenv().DoubleTapTracer then
+                createBeam(f, tpos, getgenv().DoubleTapTracerColor)
+            end
+            if getgenv().bulletTracers then
+                createBeam(f, tpos, getgenv().BulletTracerColor)
+            end
         end
-        return old(self,unpack(a))
+        return old(self, unpack(a))
     end
-    return old(self,...)
+    return old(self, ...)
 end)
