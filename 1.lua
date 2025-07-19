@@ -1,7 +1,7 @@
 getgenv().killAll = false
 getgenv().teamCheck = false
 getgenv().targetPartName = "Head"
-getgenv().radius = 100000
+getgenv().radius = 9e9
 getgenv().fireDelay = 0.1
 getgenv().bulletTracers = getgenv().bulletTracers or false
 getgenv().silentAim = getgenv().silentAim or false
