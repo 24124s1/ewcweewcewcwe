@@ -70,7 +70,7 @@ local library = {
 
 library.themes = {
     {
-        name = 'default',
+        name = 'Default',
         theme = {
             ["Accent"]                    = fromrgb(226, 30, 112);
             ["Background"]                = fromrgb(18,18,18);
