@@ -70,29 +70,29 @@ local library = {
 
 library.themes = {
     {
-        name = 'Default',
+        name = 'Nekocheat',
         theme = {
-            ['Accent']                    = fromrgb(180, 85, 255);
-            ['Background']                = fromrgb(15, 15, 20);
-            ['Border']                    = fromrgb(0, 0, 0);
-            ['Border 1']                  = fromrgb(60, 30, 90);
-            ['Border 2']                  = fromrgb(25, 20, 40);
-            ['Border 3']                  = fromrgb(10, 10, 10);
-            ['Primary Text']              = fromrgb(240, 240, 255);
-            ['Group Background']          = fromrgb(20, 15, 30);
-            ['Selected Tab Background']   = fromrgb(20, 15, 30);
-            ['Unselected Tab Background'] = fromrgb(15, 15, 20);
-            ['Selected Tab Text']         = fromrgb(220, 190, 255);
-            ['Unselected Tab Text']       = fromrgb(150, 130, 170);
-            ['Section Background']        = fromrgb(20, 15, 30);
-            ['Option Text 1']             = fromrgb(230, 200, 255);
-            ['Option Text 2']             = fromrgb(190, 170, 220);
-            ['Option Text 3']             = fromrgb(140, 120, 160);
-            ['Option Border 1']           = fromrgb(75, 40, 110);
-            ['Option Border 2']           = fromrgb(0, 0, 0);
-            ['Option Background']         = fromrgb(30, 20, 40);
-            ["Risky Text"]                = fromrgb(190, 40, 90);
-            ["Risky Text Enabled"]        = fromrgb(255, 60, 120);
+            ["Accent"]                    = fromrgb(226, 30, 112);
+            ["Background"]                = fromrgb(18,18,18);
+            ["Border"]                    = fromrgb(0,0,0);
+            ["Border 1"]                  = fromrgb(60,60,60);
+            ["Border 2"]                  = fromrgb(18,18,18);
+            ["Border 3"]                  = fromrgb(10,10,10);
+            ["Primary Text"]              = fromrgb(255,255,255);
+            ["Group Background"]          = fromrgb(18,18,18);
+            ["Selected Tab Background"]   = fromrgb(18,18,18);
+            ["Unselected Tab Background"] = fromrgb(18,18,18);
+            ["Selected Tab Text"]         = fromrgb(245,245,245);
+            ["Unselected Tab Text"]       = fromrgb(145,145,145);
+            ["Section Background"]        = fromrgb(18,18,18);
+            ["Option Text 1"]             = fromrgb(255,255,255);
+            ["Option Text 2"]             = fromrgb(255,255,255);
+            ["Option Text 3"]             = fromrgb(255,255,255);
+            ["Option Border 1"]           = fromrgb(50,50,50);
+            ["Option Border 2"]           = fromrgb(0,0,0);
+            ["Option Background"]         = fromrgb(23,23,23);
+            ["Risky Text"]                = fromrgb(175, 21, 21);
+            ["Risky Text Enabled"]        = fromrgb(255, 41, 41);
         }
     },
     {
@@ -117,32 +117,6 @@ library.themes = {
             ['Option Border 1']           = fromrgb(50,50,50);
             ['Option Border 2']           = fromrgb(0,0,0);
             ['Option Background']         = fromrgb(24,25,37);
-            ["Risky Text"]                = fromrgb(175, 21, 21);
-            ["Risky Text Enabled"]        = fromrgb(255, 41, 41);
-        }
-    },
-    {
-        name = 'Nekocheat',
-        theme = {
-            ["Accent"]                    = fromrgb(226, 30, 112);
-            ["Background"]                = fromrgb(18,18,18);
-            ["Border"]                    = fromrgb(0,0,0);
-            ["Border 1"]                  = fromrgb(60,60,60);
-            ["Border 2"]                  = fromrgb(18,18,18);
-            ["Border 3"]                  = fromrgb(10,10,10);
-            ["Primary Text"]              = fromrgb(255,255,255);
-            ["Group Background"]          = fromrgb(18,18,18);
-            ["Selected Tab Background"]   = fromrgb(18,18,18);
-            ["Unselected Tab Background"] = fromrgb(18,18,18);
-            ["Selected Tab Text"]         = fromrgb(245,245,245);
-            ["Unselected Tab Text"]       = fromrgb(145,145,145);
-            ["Section Background"]        = fromrgb(18,18,18);
-            ["Option Text 1"]             = fromrgb(255,255,255);
-            ["Option Text 2"]             = fromrgb(255,255,255);
-            ["Option Text 3"]             = fromrgb(255,255,255);
-            ["Option Border 1"]           = fromrgb(50,50,50);
-            ["Option Border 2"]           = fromrgb(0,0,0);
-            ["Option Background"]         = fromrgb(23,23,23);
             ["Risky Text"]                = fromrgb(175, 21, 21);
             ["Risky Text Enabled"]        = fromrgb(255, 41, 41);
         }
@@ -4571,7 +4545,7 @@ function library:init()
             objects = {};
             text = {
                 {self.cheatname, true},
-                {"Private", true},
+                {"Public", true},
                 {self.gamename, true},
                 {'0 fps', true},
                 {'0ms', true},
