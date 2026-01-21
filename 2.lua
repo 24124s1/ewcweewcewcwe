@@ -70,7 +70,7 @@ local library = {
 
 library.themes = {
     {
-        name = 'Nekocheat',
+        name = 'default',
         theme = {
             ["Accent"]                    = fromrgb(226, 30, 112);
             ["Background"]                = fromrgb(18,18,18);
